@@ -1,0 +1,30 @@
+---
+const { id } = Astro.params;
+
+import Layout from "../../layouts/Layout.astro";
+import SpotifyHeader from "../../components/SpotifyHeader.astro";
+
+import { getPlaylist } from "../../api/getPlaylist";
+import PlaylistCard from "../../components/PlaylistCard.astro";
+import PlaylistTable from "../../components/PlaylistTable.astro";
+import ExplanationCard from "../../components/ExplanationCard.astro";
+
+const token = Astro.cookies.get("access_token")!.value;
+const playlist = await getPlaylist(id!, token);
+---
+
+<Layout title="Playlist" />
+<main>
+  <SpotifyHeader isLogin={true} />
+  <div class="container mx-auto">
+    <div class="flex gap-x-4 mt-4 mb-4">
+      <PlaylistCard playlist={playlist} />
+      <ExplanationCard
+        title="Explanation of the survey"
+        explanation="The survey is a way to choose the best songs of your playlists. The best songs will be at the top of the list. You can vote for the songs you like or dislike."
+        icon="icon-[gg--poll]"
+      />
+    </div>
+    <PlaylistTable playlist={playlist} />
+  </div>
+</main>

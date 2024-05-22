@@ -1,0 +1,65 @@
+---
+import Layout from "../layouts/Layout.astro";
+import PlaylistsTable from "../components/PlaylistsTable.astro";
+import SpotifyHeader from "../components/SpotifyHeader.astro";
+import ProfileCard from "../components/ProfileCard.astro";
+import ExplanationCard from "../components/ExplanationCard.astro";
+
+const { getAccessToken } = await import("../api/getAccessToken");
+const { getUserData } = await import("../api/getUserData");
+
+// Obtener el código de la URL
+const code = Astro.url.searchParams.get("code");
+const codeVerifier = Astro.cookies.get("code_verifier")!.value;
+const clientId = Astro.cookies.get("client_id")!.value;
+
+const tokenExists = Astro.cookies.has("access_token");
+
+// Función para manejar el intercambio de tokens y guardarlos en cookies
+async function handleTokenExchange(code: string) {
+  if (!code) return {};
+
+  const tokenResponse = await getAccessToken(code, codeVerifier, clientId);
+  const userData = await getUserData(tokenResponse.access_token);
+
+  // Guardar tokens y datos relevantes en cookies
+  Astro.cookies.set("access_token", tokenResponse.access_token, {
+    expires: new Date(Date.now() + parseInt(tokenResponse.expires_in) * 1000),
+  });
+  Astro.cookies.set("refresh_token", tokenResponse.refresh_token);
+  Astro.cookies.set("expires_in", tokenResponse.expires_in);
+
+  return { userData };
+}
+
+let userData = new Object();
+let token = "";
+if (tokenExists) {
+  token = Astro.cookies.get("access_token")!.value;
+  userData = await getUserData(Astro.cookies.get("access_token")!.value);
+} else {
+  // Uso de fetch para cargar datos dinámicos en el servidor
+  userData = await handleTokenExchange(code!);
+}
+
+const info = {
+  token,
+  ...userData,
+};
+---
+
+<Layout title="Spotify Survey" />
+<main>
+  <SpotifyHeader isLogin={true} />
+  <div class="container mx-auto">
+    <div class="flex gap-x-4 mt-4 mb-4">
+      <ProfileCard userData={userData} />
+      <ExplanationCard
+        title="Explanation of the survey"
+        explanation="The survey is a way to choose the best songs of your playlists. The best songs will be at the top of the list. You can vote for the songs you like or dislike."
+        icon="icon-[mdi--information-outline]"
+      />
+    </div>
+    <PlaylistsTable info={info} />
+  </div>
+</main>

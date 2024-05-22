@@ -1,0 +1,167 @@
+---
+import { formatDistanceToNow } from "date-fns";
+import type { Item, Playlist } from "../interfaces/Playlist";
+
+import { getProfiles } from "../api/getProfiles";
+import type { Owner } from "../interfaces/Playlist";
+
+const { tracks } = Astro.props.playlist as Playlist;
+
+const token = Astro.cookies.get("access_token")?.value;
+const mappedArray = async () => {
+  const items = tracks.items;
+  const playlistPromises = items.map(async (item: Item) => {
+    const artists = joinArtists(item.track.album.artists);
+    return {
+      id: item.track.id,
+      addedBy: item.added_by.id,
+      imagen: item.track.album.images[2].url,
+      title: item.track.name,
+      artist: artists,
+      album: item.track.album.name,
+      dateAdded: item.added_at,
+      duration: item.track.duration_ms,
+    };
+  });
+
+  const ids = items.map((item: Item) => item.added_by.id);
+  const uniqueIds = [...new Set(ids)];
+  const profilesPromises = await getProfiles(uniqueIds, token!);
+
+  // Esperar a que todas las promesas de playlists se resuelvan
+  const playlists = await Promise.all(playlistPromises);
+
+  // Esperar a que todas las promesas de profiles se resuelvan
+  const profiles = await Promise.all(profilesPromises);
+
+  return {
+    playlists,
+    profiles,
+  };
+};
+
+const printTable = async () => {
+  const { playlists, profiles } = await mappedArray();
+  const tracksWithProfiles = playlists.map((track) => {
+    // Buscamos el perfil que añadió la playlist actual
+    const profile = profiles.find((profile) => profile.id === track.addedBy);
+
+    // Si encontramos un perfil, devolvemos el track con la información del perfil
+    if (profile) {
+      return {
+        ...track,
+        nameProfile: profile.display_name,
+        imagenProfile: profile.images.length > 1 ? profile.images[1].url : null,
+      };
+    }
+    // Si no encontramos un perfil, devolvemos el track tal cual o podrías manejarlo de otra manera
+    return track;
+  });
+
+  return tracksWithProfiles;
+};
+
+// // Llamada a la función
+const tracksWithProfiles = await printTable();
+
+function joinArtists(artists: Owner[]) {
+  if (artists.length === 1) {
+    return artists[0].name;
+  }
+  return artists.map((artist) => artist.name).join(", ");
+}
+
+function msToMinutesSeconds(duration: number) {
+  const minutes = Math.floor(duration / 60000);
+  const seconds = Math.floor((duration % 60000) / 1000);
+  return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
+}
+---
+
+<table
+  class="table-auto rounded text-left min-w-full divide-y divide-gray-500/20 dark:bg-neutral-900/90"
+>
+  <thead class="">
+    <tr class="text-zinc-400 text-sm">
+      <th class="px-4 py-2 font-light">#</th>
+      <th class="px-4 py-2 font-medium"
+        ><span class="hover:text-white">Title</span></th
+      >
+      <th class="px-4 py-2 font-medium"
+        ><span class="hover:text-white">Album</span>
+      </th>
+      <th class="px-4 py-2 font-medium"
+        ><span class="hover:text-white">Added by</span></th
+      >
+      <th class="px-4 py-2 font-medium"
+        ><span class="hover:text-white">Date added</span></th
+      >
+      <th class="px-4 py-2 text-center font-medium"
+        ><span
+          class="icon-[ion--time-outline] text-2xl hover:text-white"
+          role="img"
+          aria-hidden="true"></span></th
+      >
+      <th class="px-4 py-2 font-medium hover:text-white"
+        ><span class="hover:text-white">Score</span></th
+      >
+      <th class="px-4 py-2 text-center font-medium"
+        ><span
+          class="icon-[material-symbols--trophy-outline] text-2xl hover:text-white"
+          role="img"
+          aria-hidden="true"></span>
+      </th>
+    </tr>
+
+    <tbody>
+      <tr class="h-[16px]"></tr>
+      {
+        tracksWithProfiles.map((item: any, index: number) => (
+          <tr class="border-spacing-0 text-gray-300 text-sm font-light hover:bg-white/10 overflow-hidden transition duration-300">
+            <td class="px-4 py-2 rounded-tl-lg rounded-bl-lg w-5">
+              {index + 1}
+            </td>
+            <td class="px-4 py-2 flex gap-3">
+              <picture class="">
+                <img src={item.imagen} alt={item.title} class="w-11 h-11" />
+              </picture>
+              <div class="flex justify-center flex-col">
+                <h3 class="text-white text-base font-normal">{item.title}</h3>
+                <span>{item.artist}</span>
+              </div>
+            </td>
+            <td class="px-4 py-2">{item.album}</td>
+            <td class="px-4 py-2">
+              <div class="flex items-center gap-x-2">
+                <img
+                  src={item.imagenProfile || "/images/ProfileUnknown.png"}
+                  alt={item.addedByName}
+                  class="w-11 h-11 rounded-full"
+                />
+                {item.nameProfile}
+              </div>
+            </td>
+            <td class="px-4 py-2">
+              {formatDistanceToNow(new Date(item.dateAdded), {
+                addSuffix: true,
+              })}
+            </td>
+            <td class="px-4 py-2">{msToMinutesSeconds(item.duration)}</td>
+            <td class="px-4 py-2 text-center">
+              <button class="">
+                <span
+                  class="icon-[material-symbols--stars-outline] text-2xl"
+                  role="img"
+                  aria-hidden="true"
+                />
+              </button>
+            </td>
+            <td class="px-4 py-2 rounded-tr-lg rounded-br-lg">
+              {Math.floor(Math.random() * 100)}
+            </td>
+          </tr>
+        ))
+      }
+    </tbody>
+  </thead>
+</table>

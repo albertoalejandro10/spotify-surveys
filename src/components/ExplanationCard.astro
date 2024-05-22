@@ -1,0 +1,24 @@
+---
+const { title, explanation, icon } = Astro.props;
+---
+
+<div
+  class="w-full flex items-center justify-center gap-x-6 rounded-xl bg-neutral-900/90 px-4 py-10 shadow"
+>
+  <div>
+    <span
+      style="font-size: 8rem;"
+      class={`text-green-500 ${icon}`}
+      class="text-green-500"
+      role="img"
+      aria-hidden="true"></span>
+  </div>
+  <div>
+    <div class="uppercase tracking-wide text-sm text-green-500 font-semibold">
+      {title}
+    </div>
+    <p class="mt-2 text-neutral-500">
+      {explanation}
+    </p>
+  </div>
+</div>

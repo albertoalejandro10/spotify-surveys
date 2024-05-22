@@ -1,0 +1,31 @@
+---
+const { isLogin } = Astro.props;
+---
+
+<header
+  class="bg-black/90 px-6 py-4 sticky top-0 z-20 border-b-green-500 border-b-2"
+>
+  <div class="flex items-center justify-between align-items-center">
+    <span class="icon-[logos--spotify] text-4xl" role="img" aria-hidden="true"
+    ></span>
+    {
+      isLogin && (
+        <div>
+          <button class="flex items-center text-white gap-x-3 px-2 py-2 w-full bg-neutral-600 rounded-full">
+            <img
+              class="w-6 h-6 rounded-full"
+              src="https://i.scdn.co/image/ab6775700000ee85b941bb276ca8789a96c0162c"
+              alt="avatar"
+            />
+            <span class="font-bold mr-2">Betox</span>
+            <span
+              class="icon-[ls--dropdown] text-xs"
+              role="img"
+              aria-hidden="true"
+            />
+          </button>
+        </div>
+      )
+    }
+  </div>
+</header>
