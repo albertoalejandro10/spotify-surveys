@@ -13,8 +13,6 @@ const {
   email,
 } = Astro.props.userData;
 
-// console.log(Astro.props.userData);
-
 const getImageFromArray = (images: Image[]) => {
   return images[1].url || images[0].url;
 };

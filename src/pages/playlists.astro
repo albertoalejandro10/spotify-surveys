@@ -16,11 +16,10 @@ const clientId = Astro.cookies.get("client_id")!.value;
 const tokenExists = Astro.cookies.has("access_token");
 
 // Función para manejar el intercambio de tokens y guardarlos en cookies
-async function handleTokenExchange(code: string) {
+const handleTokenExchange = async (code: string) => {
   if (!code) return {};
 
   const tokenResponse = await getAccessToken(code, codeVerifier, clientId);
-  const userData = await getUserData(tokenResponse.access_token);
 
   // Guardar tokens y datos relevantes en cookies
   Astro.cookies.set("access_token", tokenResponse.access_token, {
@@ -29,17 +28,18 @@ async function handleTokenExchange(code: string) {
   Astro.cookies.set("refresh_token", tokenResponse.refresh_token);
   Astro.cookies.set("expires_in", tokenResponse.expires_in);
 
-  return { userData };
-}
+  return tokenResponse.access_token;
+};
 
 let userData = new Object();
 let token = "";
 if (tokenExists) {
   token = Astro.cookies.get("access_token")!.value;
-  userData = await getUserData(Astro.cookies.get("access_token")!.value);
+  userData = await getUserData(token);
 } else {
   // Uso de fetch para cargar datos dinámicos en el servidor
-  userData = await handleTokenExchange(code!);
+  token = await handleTokenExchange(code!);
+  userData = await getUserData(token);
 }
 
 const info = {
