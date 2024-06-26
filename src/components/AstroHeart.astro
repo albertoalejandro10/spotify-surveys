@@ -1,0 +1,28 @@
+<!-- Wrap the component elements in our custom element “astro-heart”. -->
+<astro-heart>
+	<button aria-label="Heart"
+		><span
+			class="icon-[wpf--like] animate-pulse-fade-in text-2xl hover:text-green-500"
+			role="img"
+			aria-hidden="true"></span></button
+	>
+</astro-heart>
+
+<script>
+	// Define the behaviour for our new type of HTML element.
+	class AstroHeart extends HTMLElement {
+		constructor() {
+			super()
+
+			const heartButton = this.querySelector('button')!
+
+			// Each time the button is clicked, update the count.
+			heartButton.addEventListener('click', () => {
+				console.log('OKKKKEY')
+			})
+		}
+	}
+
+	// Tell the browser to use our AstroHeart class for <astro-heart> elements.
+	customElements.define('astro-heart', AstroHeart)
+</script>

@@ -1,4 +1,6 @@
 ---
+import AstroHeart from "./AstroHeart.astro";
+
 import { formatDistanceToNow } from "date-fns";
 import type { Item, Playlist } from "../interfaces/Playlist";
 
@@ -42,6 +44,7 @@ const mappedArray = async () => {
 
 const printTable = async () => {
   const { playlists, profiles } = await mappedArray();
+  // console.log(playlists);
   const tracksWithProfiles = playlists.map((track) => {
     // Buscamos el perfil que añadió la playlist actual
     const profile = profiles.find((profile) => profile.id === track.addedBy);
@@ -78,46 +81,46 @@ function msToMinutesSeconds(duration: number) {
 }
 ---
 
-<table
-  class="table-auto rounded text-left min-w-full divide-y divide-gray-500/20 dark:bg-neutral-900/90"
->
-  <thead class="">
-    <tr class="text-zinc-400 text-sm">
-      <th class="px-4 py-2 font-light">#</th>
-      <th class="px-4 py-2 font-medium"
-        ><span class="hover:text-white">Title</span></th
-      >
-      <th class="px-4 py-2 font-medium"
-        ><span class="hover:text-white">Album</span>
-      </th>
-      <th class="px-4 py-2 font-medium"
-        ><span class="hover:text-white">Added by</span></th
-      >
-      <th class="px-4 py-2 font-medium"
-        ><span class="hover:text-white">Date added</span></th
-      >
-      <th class="px-4 py-2 text-center font-medium"
-        ><span
-          class="icon-[ion--time-outline] text-2xl hover:text-white"
-          role="img"
-          aria-hidden="true"></span></th
-      >
-      <th class="px-4 py-2 font-medium hover:text-white"
-        ><span class="hover:text-white">Score</span></th
-      >
-      <th class="px-4 py-2 text-center font-medium"
-        ><span
-          class="icon-[material-symbols--trophy-outline] text-2xl hover:text-white"
-          role="img"
-          aria-hidden="true"></span>
-      </th>
-    </tr>
-
-    <tbody>
-      <tr class="h-[16px]"></tr>
+<div class="overflow-auto max-h-[590px] rounded-xl bg-neutral-900/80">
+  <table
+    class="table-fixed text-left min-w-full divide-y divide-neutral-500/20"
+  >
+    <thead class="sticky top-0 z-10 bg-neutral-900/90">
+      <tr class="text-neutral-400 text-sm">
+        <th class="px-4 py-2 font-light">#</th>
+        <th class="px-4 py-2 font-medium"
+          ><span class="hover:text-white">Title</span></th
+        >
+        <th class="px-4 py-2 font-medium"
+          ><span class="hover:text-white">Album</span>
+        </th>
+        <th class="px-4 py-2 font-medium"
+          ><span class="hover:text-white">Added by</span></th
+        >
+        <th class="px-4 py-2 font-medium"
+          ><span class="hover:text-white">Date added</span></th
+        >
+        <th class="px-4 py-2 text-center font-medium"
+          ><span
+            class="icon-[ion--time-outline] text-2xl hover:text-white"
+            role="img"
+            aria-hidden="true"></span></th
+        >
+        <th class="px-4 py-2 font-medium hover:text-white"
+          ><span class="hover:text-white">Score</span></th
+        >
+        <th class="px-4 py-2 text-center font-medium"
+          ><span
+            class="icon-[material-symbols--trophy-outline] text-2xl hover:text-white"
+            role="img"
+            aria-hidden="true"></span>
+        </th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-neutral-500/20">
       {
         tracksWithProfiles.map((item: any, index: number) => (
-          <tr class="border-spacing-0 text-gray-300 text-sm font-light hover:bg-white/10 overflow-hidden transition duration-300">
+          <tr class="border-spacing-0 text-neutral-300 text-sm font-light hover:bg-white/10 overflow-hidden transition duration-300">
             <td class="px-4 py-2 rounded-tl-lg rounded-bl-lg w-5">
               {index + 1}
             </td>
@@ -148,20 +151,12 @@ function msToMinutesSeconds(duration: number) {
             </td>
             <td class="px-4 py-2">{msToMinutesSeconds(item.duration)}</td>
             <td class="px-4 py-2 text-center">
-              <button class="">
-                <span
-                  class="icon-[material-symbols--stars-outline] text-2xl"
-                  role="img"
-                  aria-hidden="true"
-                />
-              </button>
+              <AstroHeart />
             </td>
-            <td class="px-4 py-2 rounded-tr-lg rounded-br-lg">
-              {Math.floor(Math.random() * 100)}
-            </td>
+            <td class="px-4 py-2 rounded-tr-lg rounded-br-lg">0</td>
           </tr>
         ))
       }
     </tbody>
-  </thead>
-</table>
+  </table>
+</div>
