@@ -14,7 +14,7 @@ if (Astro.request.method === "POST") {
 
     const codeVerifier = generateRandomString(128);
     const hashed = await sha256(codeVerifier);
-    const codeChallengeBase64 = base64encode(hashed);
+    const codeChallenge = base64encode(hashed);
 
     const redirectUrl = "http://localhost:4321/playlists";
     const scope =
@@ -38,7 +38,7 @@ if (Astro.request.method === "POST") {
       client_id: clientId,
       scope,
       code_challenge_method: "S256",
-      code_challenge: codeChallengeBase64,
+      code_challenge: codeChallenge,
       redirect_uri: redirectUrl,
     };
 
@@ -60,7 +60,7 @@ if (Astro.request.method === "POST") {
       class="flex flex-col overflow-hidden rounded-md shadow-lg shadow-neutral-900 z-20 md:flex-row md:flex-1 lg:max-w-screen-md"
     >
       <div
-        class="p-4 py-6 text-white bg-black md:w-80 md:flex-shrink-0 md:flex md:flex-col md:items-center md:justify-evenly"
+        class="p-4 py-6 text-neutral-300 bg-black md:w-80 md:flex-shrink-0 md:flex md:flex-col md:items-center md:justify-evenly"
       >
         <div class="my-3">
           <span
@@ -79,7 +79,7 @@ if (Astro.request.method === "POST") {
             class="underline hover:text-green-500">Get Started!</a
           >
         </p>
-        <p class="mt-6 text-sm text-center text-neutral-300">
+        <p class="mt-6 text-sm text-center text-neutral-400">
           Read our <a href="#" class="underline hover:text-green-500">terms</a> and
           <a href="#" class="underline hover:text-green-500">conditions</a>
         </p>
