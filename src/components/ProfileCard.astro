@@ -1,54 +1,44 @@
 ---
-import lookup from "country-code-lookup";
+import lookup from 'country-code-lookup'
 
-import { type Image } from "../interfaces/Profile";
-const {
-  display_name,
-  external_urls,
-  href,
-  id,
-  images,
-  followers,
-  country,
-  email,
-} = Astro.props.userData;
+import { type Image } from '../interfaces/Profile'
+const { display_name, external_urls, href, id, images, followers, country, email } =
+	Astro.props.userData
 
 const getImageFromArray = (images: Image[]) => {
-  return images[1].url || images[0].url;
-};
+	return images[1].url || images[0].url
+}
 
 const getHTTPCountryFlag = (country: string) => {
-  return `https://flagsapi.com/${country}/flat/32.png`;
-};
+	return `https://flagsapi.com/${country}/flat/32.png`
+}
 
 const getFullyCountryName = () => {
-  return lookup.byIso(country);
-};
+	return lookup.byIso(country)
+}
 ---
 
 <div class="max-w-xs rounded-xl bg-neutral-900/90 px-8 py-2 text-center shadow">
-  <img
-    class="mx-auto mb-4 h-24 w-24 rounded-full shadow-lg"
-    src={getImageFromArray(images)}
-    alt="profile-picture"
-  />
-  <h1
-    class="text-xl font-semibold hover:text-green-600 transition-colors duration-300"
-  >
-    <a href={external_urls.spotify} target="_blank" rel="noreferrer">
-      @{display_name}
-    </a>
-  </h1>
-  <h2 class="text-sm font-semibold text-neutral-500">{email}</h2>
-  <div class="mb-6 flex items-center justify-center gap-x-2">
-    <img class="h-6 w-6" src={getHTTPCountryFlag(country)} alt="country-flag" />
-    <h3 class="font-semibold text-neutral-500">
-      {getFullyCountryName()?.country}
-    </h3>
-  </div>
-  <button
-    class="px-10 py-2 font-semibold text-white transition-colors duration-300 bg-green-500 rounded-md shadow hover:bg-green-600 focus:outline-none focus:ring-green-100 focus:ring-4"
-  >
-    Follow
-  </button>
+	<img
+		class="mx-auto mb-4 h-24 w-24 rounded-full shadow-lg"
+		src={getImageFromArray(images)}
+		alt="profile-picture"
+	/>
+	<h1 class="text-xl font-semibold transition-colors duration-300 hover:text-green-600">
+		<a href={external_urls.spotify} target="_blank" rel="noreferrer">
+			@{display_name}
+		</a>
+	</h1>
+	<h2 class="text-sm font-semibold text-neutral-500">{email}</h2>
+	<div class="mb-6 flex items-center justify-center gap-x-2">
+		<img class="h-6 w-6" src={getHTTPCountryFlag(country)} alt="country-flag" />
+		<h3 class="font-semibold text-neutral-500">
+			{getFullyCountryName()?.country}
+		</h3>
+	</div>
+	<button
+		class="rounded-md bg-green-500 px-10 py-2 font-semibold text-white shadow transition-colors duration-300 hover:bg-green-600 focus:outline-none focus:ring-4 focus:ring-green-100"
+	>
+		Follow
+	</button>
 </div>

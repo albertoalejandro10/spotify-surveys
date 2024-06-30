@@ -1,1 +1,10 @@
 node_modules/**
+.prettierignore
+.gitignore
+.vscode/**
+LICENSE
+README.md
+pnpm-lock.yaml
+package.json
+astro.config.mjs
+tailwind.config.mjs

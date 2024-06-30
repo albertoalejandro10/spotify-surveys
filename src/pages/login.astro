@@ -1,141 +1,126 @@
 ---
-import Layout from "../layouts/Layout.astro";
-import SpotifyHeader from "../components/SpotifyHeader.astro";
+import Layout from '../layouts/Layout.astro'
+import SpotifyHeader from '../components/SpotifyHeader.astro'
 
-import { generateRandomString } from "../lib/generateRandomString";
-import { sha256 } from "../lib/hashRandomString";
-import { base64encode } from "../lib/base64encode";
+import { generateRandomString } from '../lib/generateRandomString'
+import { sha256 } from '../lib/hashRandomString'
+import { base64encode } from '../lib/base64encode'
 
-const errors = { clientId: "" };
-if (Astro.request.method === "POST") {
-  try {
-    const data = await Astro.request.formData();
-    const clientId = data.get("client_id") as string;
+const errors = { clientId: '' }
+if (Astro.request.method === 'POST') {
+	try {
+		const data = await Astro.request.formData()
+		const clientId = data.get('client_id') as string
 
-    const codeVerifier = generateRandomString(128);
-    const hashed = await sha256(codeVerifier);
-    const codeChallenge = base64encode(hashed);
+		const codeVerifier = generateRandomString(128)
+		const hashed = await sha256(codeVerifier)
+		const codeChallenge = base64encode(hashed)
 
-    const redirectUrl = "http://localhost:4321/playlists";
-    const scope =
-      "user-read-private user-read-email playlist-read-private playlist-read-collaborative";
-    const authUrl = new URL("https://accounts.spotify.com/authorize");
+		const redirectUrl = 'http://localhost:4321/playlists'
+		const scope =
+			'user-read-private user-read-email playlist-read-private playlist-read-collaborative'
+		const authUrl = new URL('https://accounts.spotify.com/authorize')
 
-    // Establecer la expiración a 1 hora desde ahora.
-    const expiryIn = new Date();
-    expiryIn.setTime(expiryIn.getTime() + 60 * 60 * 1000); // Sumar 1 hora en milisegundos
+		// Establecer la expiración a 1 hora desde ahora.
+		const expiryIn = new Date()
+		expiryIn.setTime(expiryIn.getTime() + 60 * 60 * 1000) // Sumar 1 hora en milisegundos
 
-    Astro.cookies.set("client_id", clientId, {
-      expires: expiryIn,
-    });
+		Astro.cookies.set('client_id', clientId, {
+			expires: expiryIn
+		})
 
-    Astro.cookies.set("code_verifier", codeVerifier, {
-      expires: expiryIn,
-    });
+		Astro.cookies.set('code_verifier', codeVerifier, {
+			expires: expiryIn
+		})
 
-    const params = {
-      response_type: "code",
-      client_id: clientId,
-      scope,
-      code_challenge_method: "S256",
-      code_challenge: codeChallenge,
-      redirect_uri: redirectUrl,
-    };
+		const params = {
+			response_type: 'code',
+			client_id: clientId,
+			scope,
+			code_challenge_method: 'S256',
+			code_challenge: codeChallenge,
+			redirect_uri: redirectUrl
+		}
 
-    authUrl.search = new URLSearchParams(params).toString();
-    return Astro.redirect(authUrl.toString());
-  } catch (error) {
-    if (error instanceof Error) {
-      console.error(error.message);
-    }
-  }
+		authUrl.search = new URLSearchParams(params).toString()
+		return Astro.redirect(authUrl.toString())
+	} catch (error) {
+		if (error instanceof Error) {
+			console.error(error.message)
+		}
+	}
 }
 ---
 
 <Layout title="Log in to Spotify Survey" />
 <main>
-  <SpotifyHeader isLogin={false} />
-  <div class="flex items-center justify-center h-[calc(100vh-5rem)]">
-    <div
-      class="flex flex-col overflow-hidden rounded-md shadow-lg shadow-neutral-900 z-20 md:flex-row md:flex-1 lg:max-w-screen-md"
-    >
-      <div
-        class="p-4 py-6 text-neutral-300 bg-black md:w-80 md:flex-shrink-0 md:flex md:flex-col md:items-center md:justify-evenly"
-      >
-        <div class="my-3">
-          <span
-            class="icon-[logos--spotify] text-5xl"
-            role="img"
-            aria-hidden="true"></span>
-        </div>
-        <p class="font-normal text-center text-neutral-300 md:mt-0">
-          Enter the Client Id obtained in the Spotify Developer Dashboard and
-          click on log in.
-        </p>
-        <p class="flex flex-col items-center justify-center mt-10 text-center">
-          <span>Don't have a Spotify account?</span>
-          <a
-            href="https://www.spotify.com/ve-es/signup?forward_url=https%3A%2F%2Fopen.spotify.com%2F"
-            class="underline hover:text-green-500">Get Started!</a
-          >
-        </p>
-        <p class="mt-6 text-sm text-center text-neutral-400">
-          Read our <a href="#" class="underline hover:text-green-500">terms</a> and
-          <a href="#" class="underline hover:text-green-500">conditions</a>
-        </p>
-      </div>
-      <div
-        class="flex flex-col space-y-4 justify-center p-5 bg-white md:flex-1"
-      >
-        <form
-          action="/login"
-          method="POST"
-          class="flex flex-col justify-between space-y-5"
-        >
-          <h3 class="my-4 text-2xl font-semibold text-neutral-700">
-            Spotify Login
-          </h3>
-          <div class="flex flex-col space-y-1">
-            <label
-              for="client_id"
-              class="text-sm font-semibold text-neutral-500">Client ID</label
-            >
-            <input
-              type="text"
-              id="client_id"
-              name="client_id"
-              autofocus
-              class="px-4 py-2 transition duration-300 border border-neutral-300 rounded focus:border-transparent focus:outline-none focus:ring-4 focus:ring-green-100"
-              minlength="32"
-              maxlength="32"
-              required
-            />
-            {errors.clientId && <p>{errors.clientId}</p>}
-          </div>
-          <div>
-            <button
-              type="submit"
-              class="w-full px-4 py-2 text-lg font-semibold text-white transition-colors duration-300 bg-green-500 rounded-md shadow hover:bg-green-600 focus:outline-none focus:ring-green-100 focus:ring-4"
-            >
-              Request Authorization to Spotify
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
+	<SpotifyHeader isLogin={false} />
+	<div class="flex h-[calc(100vh-5rem)] items-center justify-center">
+		<div
+			class="z-20 flex flex-col overflow-hidden rounded-md shadow-lg shadow-neutral-900 md:flex-1 md:flex-row lg:max-w-screen-md"
+		>
+			<div
+				class="bg-black p-4 py-6 text-neutral-300 md:flex md:w-80 md:flex-shrink-0 md:flex-col md:items-center md:justify-evenly"
+			>
+				<div class="my-3">
+					<span class="icon-[logos--spotify] text-5xl" role="img" aria-hidden="true"></span>
+				</div>
+				<p class="text-center font-normal text-neutral-300 md:mt-0">
+					Enter the Client Id obtained in the Spotify Developer Dashboard and click on log in.
+				</p>
+				<p class="mt-10 flex flex-col items-center justify-center text-center">
+					<span>Don't have a Spotify account?</span>
+					<a
+						href="https://www.spotify.com/ve-es/signup?forward_url=https%3A%2F%2Fopen.spotify.com%2F"
+						class="underline hover:text-green-500">Get Started!</a
+					>
+				</p>
+				<p class="mt-6 text-center text-sm text-neutral-400">
+					Read our <a href="#" class="underline hover:text-green-500">terms</a> and
+					<a href="#" class="underline hover:text-green-500">conditions</a>
+				</p>
+			</div>
+			<div class="flex flex-col justify-center space-y-4 bg-white p-5 md:flex-1">
+				<form action="/login" method="POST" class="flex flex-col justify-between space-y-5">
+					<h3 class="my-4 text-2xl font-semibold text-neutral-700">Spotify Login</h3>
+					<div class="flex flex-col space-y-1">
+						<label for="client_id" class="text-sm font-semibold text-neutral-500">Client ID</label>
+						<input
+							type="text"
+							id="client_id"
+							name="client_id"
+							autofocus
+							class="rounded border border-neutral-300 px-4 py-2 transition duration-300 focus:border-transparent focus:outline-none focus:ring-4 focus:ring-green-100"
+							minlength="32"
+							maxlength="32"
+							required
+						/>
+						{errors.clientId && <p>{errors.clientId}</p>}
+					</div>
+					<div>
+						<button
+							type="submit"
+							class="w-full rounded-md bg-green-500 px-4 py-2 text-lg font-semibold text-white shadow transition-colors duration-300 hover:bg-green-600 focus:outline-none focus:ring-4 focus:ring-green-100"
+						>
+							Request Authorization to Spotify
+						</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
 </main>
 
 <div id="svg-background"></div>
 <style>
-  #svg-background {
-    width: 100vh;
-    height: 100vh;
-    bottom: -200px;
-    right: -200px;
-    position: fixed;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill-opacity='0.15' width='128' height='128' viewBox='0 0 256 256'%3E%3Cpath fill='%231ED760' d='M128 0C57.308 0 0 57.309 0 128c0 70.696 57.309 128 128 128c70.697 0 128-57.304 128-128C256 57.314 198.697.007 127.998.007zm58.699 184.614c-2.293 3.76-7.215 4.952-10.975 2.644c-30.053-18.357-67.885-22.515-112.44-12.335a7.981 7.981 0 0 1-9.552-6.007a7.968 7.968 0 0 1 6-9.553c48.76-11.14 90.583-6.344 124.323 14.276c3.76 2.308 4.952 7.215 2.644 10.975m15.667-34.853c-2.89 4.695-9.034 6.178-13.726 3.289c-34.406-21.148-86.853-27.273-127.548-14.92c-5.278 1.594-10.852-1.38-12.454-6.649c-1.59-5.278 1.386-10.842 6.655-12.446c46.485-14.106 104.275-7.273 143.787 17.007c4.692 2.89 6.175 9.034 3.286 13.72zm1.345-36.293C162.457 88.964 94.394 86.71 55.007 98.666c-6.325 1.918-13.014-1.653-14.93-7.978c-1.917-6.328 1.65-13.012 7.98-14.935C93.27 62.027 168.434 64.68 215.929 92.876c5.702 3.376 7.566 10.724 4.188 16.405c-3.362 5.69-10.73 7.565-16.4 4.187z'/%3E%3C/svg%3E");
-    background-size: cover;
-    z-index: 10;
-  }
+	#svg-background {
+		width: 100vh;
+		height: 100vh;
+		bottom: -200px;
+		right: -200px;
+		position: fixed;
+		background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill-opacity='0.15' width='128' height='128' viewBox='0 0 256 256'%3E%3Cpath fill='%231ED760' d='M128 0C57.308 0 0 57.309 0 128c0 70.696 57.309 128 128 128c70.697 0 128-57.304 128-128C256 57.314 198.697.007 127.998.007zm58.699 184.614c-2.293 3.76-7.215 4.952-10.975 2.644c-30.053-18.357-67.885-22.515-112.44-12.335a7.981 7.981 0 0 1-9.552-6.007a7.968 7.968 0 0 1 6-9.553c48.76-11.14 90.583-6.344 124.323 14.276c3.76 2.308 4.952 7.215 2.644 10.975m15.667-34.853c-2.89 4.695-9.034 6.178-13.726 3.289c-34.406-21.148-86.853-27.273-127.548-14.92c-5.278 1.594-10.852-1.38-12.454-6.649c-1.59-5.278 1.386-10.842 6.655-12.446c46.485-14.106 104.275-7.273 143.787 17.007c4.692 2.89 6.175 9.034 3.286 13.72zm1.345-36.293C162.457 88.964 94.394 86.71 55.007 98.666c-6.325 1.918-13.014-1.653-14.93-7.978c-1.917-6.328 1.65-13.012 7.98-14.935C93.27 62.027 168.434 64.68 215.929 92.876c5.702 3.376 7.566 10.724 4.188 16.405c-3.362 5.69-10.73 7.565-16.4 4.187z'/%3E%3C/svg%3E");
+		background-size: cover;
+		z-index: 10;
+	}
 </style>

@@ -1,70 +1,70 @@
 ---
-import SpotifyHeader from "../components/SpotifyHeader.astro";
+import SpotifyHeader from '../components/SpotifyHeader.astro'
 interface Props {
-  title: string;
+	title: string
 }
 
-const { title } = Astro.props;
+const { title } = Astro.props
 ---
 
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="description" content="TODO" />
-    <meta name="viewport" content="width=device-width" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="generator" content={Astro.generator} />
-    <title>{title}</title>
-  </head>
-  <body class="min-h-screen bg-gradient-to-t from-neutral-700 to-neutral-800">
-    <slot />
-  </body>
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="description" content="TODO" />
+		<meta name="viewport" content="width=device-width" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="generator" content={Astro.generator} />
+		<title>{title}</title>
+	</head>
+	<body class="min-h-screen bg-gradient-to-t from-neutral-700 to-neutral-800">
+		<slot />
+	</body>
 </html>
 <style is:global>
-  html {
-    font-family: "CircularStd", system-ui, sans-serif;
-    background: #010101;
-    color-scheme: dark light;
-  }
+	html {
+		font-family: 'CircularStd', system-ui, sans-serif;
+		background: #010101;
+		color-scheme: dark light;
+	}
 
-  @font-face {
-    font-family: "CircularStd";
-    src: url("/fonts/CircularStd-Medium.woff2") format("woff2");
-    font-weight: 500;
-    font-style: normal;
-    font-display: swap;
-  }
+	@font-face {
+		font-family: 'CircularStd';
+		src: url('/fonts/CircularStd-Medium.woff2') format('woff2');
+		font-weight: 500;
+		font-style: normal;
+		font-display: swap;
+	}
 
-  @font-face {
-    font-family: "CircularStd";
-    src: url("/fonts/CircularStd-Book.woff2") format("woff2");
-    font-weight: 400;
-    font-style: normal;
-    font-display: swap;
-  }
+	@font-face {
+		font-family: 'CircularStd';
+		src: url('/fonts/CircularStd-Book.woff2') format('woff2');
+		font-weight: 400;
+		font-style: normal;
+		font-display: swap;
+	}
 
-  @font-face {
-    font-family: "CircularStd";
-    src: url("/fonts/CircularStd-Light.woff2") format("woff2");
-    font-weight: 300;
-    font-style: normal;
-    font-display: swap;
-  }
+	@font-face {
+		font-family: 'CircularStd';
+		src: url('/fonts/CircularStd-Light.woff2') format('woff2');
+		font-weight: 300;
+		font-style: normal;
+		font-display: swap;
+	}
 
-  @font-face {
-    font-family: "CircularStd";
-    src: url("/fonts/CircularStd-Bold.woff2") format("woff2");
-    font-weight: 700;
-    font-style: normal;
-    font-display: swap;
-  }
+	@font-face {
+		font-family: 'CircularStd';
+		src: url('/fonts/CircularStd-Bold.woff2') format('woff2');
+		font-weight: 700;
+		font-style: normal;
+		font-display: swap;
+	}
 
-  @font-face {
-    font-family: "CircularStd";
-    src: url("/fonts/CircularStd-Black.woff2") format("woff2");
-    font-weight: 900;
-    font-style: normal;
-    font-display: swap;
-  }
+	@font-face {
+		font-family: 'CircularStd';
+		src: url('/fonts/CircularStd-Black.woff2') format('woff2');
+		font-weight: 900;
+		font-style: normal;
+		font-display: swap;
+	}
 </style>

@@ -1,65 +1,65 @@
 ---
-import Layout from "../layouts/Layout.astro";
-import PlaylistsTable from "../components/PlaylistsTable.astro";
-import SpotifyHeader from "../components/SpotifyHeader.astro";
-import ProfileCard from "../components/ProfileCard.astro";
-import ExplanationCard from "../components/ExplanationCard.astro";
+import Layout from '../layouts/Layout.astro'
+import PlaylistsTable from '../components/PlaylistsTable.astro'
+import SpotifyHeader from '../components/SpotifyHeader.astro'
+import ProfileCard from '../components/ProfileCard.astro'
+import ExplanationCard from '../components/ExplanationCard.astro'
 
-const { getAccessToken } = await import("../api/getAccessToken");
-const { getUserData } = await import("../api/getUserData");
+const { getAccessToken } = await import('../api/getAccessToken')
+const { getUserData } = await import('../api/getUserData')
 
 // Obtener el código de la URL
-const code = Astro.url.searchParams.get("code");
-const codeVerifier = Astro.cookies.get("code_verifier")!.value;
-const clientId = Astro.cookies.get("client_id")!.value;
+const code = Astro.url.searchParams.get('code')
+const codeVerifier = Astro.cookies.get('code_verifier')!.value
+const clientId = Astro.cookies.get('client_id')!.value
 
-const tokenExists = Astro.cookies.has("access_token");
+const tokenExists = Astro.cookies.has('access_token')
 
 // Función para manejar el intercambio de tokens y guardarlos en cookies
 const handleTokenExchange = async (code: string) => {
-  if (!code) return {};
+	if (!code) return {}
 
-  const tokenResponse = await getAccessToken(code, codeVerifier, clientId);
+	const tokenResponse = await getAccessToken(code, codeVerifier, clientId)
 
-  // Guardar tokens y datos relevantes en cookies
-  Astro.cookies.set("access_token", tokenResponse.access_token, {
-    expires: new Date(Date.now() + parseInt(tokenResponse.expires_in) * 1000),
-  });
-  Astro.cookies.set("refresh_token", tokenResponse.refresh_token);
-  Astro.cookies.set("expires_in", tokenResponse.expires_in);
+	// Guardar tokens y datos relevantes en cookies
+	Astro.cookies.set('access_token', tokenResponse.access_token, {
+		expires: new Date(Date.now() + parseInt(tokenResponse.expires_in) * 1000)
+	})
+	Astro.cookies.set('refresh_token', tokenResponse.refresh_token)
+	Astro.cookies.set('expires_in', tokenResponse.expires_in)
 
-  return tokenResponse.access_token;
-};
+	return tokenResponse.access_token
+}
 
-let userData = new Object();
-let token = "";
+let userData = new Object()
+let token = ''
 if (tokenExists) {
-  token = Astro.cookies.get("access_token")!.value;
-  userData = await getUserData(token);
+	token = Astro.cookies.get('access_token')!.value
+	userData = await getUserData(token)
 } else {
-  // Uso de fetch para cargar datos dinámicos en el servidor
-  token = await handleTokenExchange(code!);
-  userData = await getUserData(token);
+	// Uso de fetch para cargar datos dinámicos en el servidor
+	token = await handleTokenExchange(code!)
+	userData = await getUserData(token)
 }
 
 const info = {
-  token,
-  ...userData,
-};
+	token,
+	...userData
+}
 ---
 
 <Layout title="Spotify Survey" />
 <main>
-  <SpotifyHeader isLogin={true} />
-  <div class="container mx-auto">
-    <div class="flex gap-x-4 mt-4 mb-4">
-      <ProfileCard userData={userData} />
-      <ExplanationCard
-        title="Explanation of how to use the voting application."
-        explanation="Discover and participate in creating perfect playlists with your friends. Select any Spotify playlist and vote for your favorite songs among the top 10 most popular songs. With each vote, the application automatically updates the ranking, always showing you the 10 best topics according to the group's preferences."
-        icon="icon-[mdi--information-outline]"
-      />
-    </div>
-    <PlaylistsTable info={info} />
-  </div>
+	<SpotifyHeader isLogin={true} />
+	<div class="container mx-auto">
+		<div class="mb-4 mt-4 flex gap-x-4">
+			<ProfileCard userData={userData} />
+			<ExplanationCard
+				title="Explanation of how to use the voting application."
+				explanation="Discover and participate in creating perfect playlists with your friends. Select any Spotify playlist and vote for your favorite songs among the top 10 most popular songs. With each vote, the application automatically updates the ranking, always showing you the 10 best topics according to the group's preferences."
+				icon="icon-[mdi--information-outline]"
+			/>
+		</div>
+		<PlaylistsTable info={info} />
+	</div>
 </main>

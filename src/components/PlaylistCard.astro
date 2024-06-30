@@ -1,73 +1,65 @@
 ---
-import type { Image } from "../interfaces/Playlist";
+import type { Image } from '../interfaces/Playlist'
 const {
-  collaborative,
-  description,
-  external_urls,
-  followers,
-  href,
-  id,
-  images,
-  name,
-  owner,
-  primary_color,
-  snapshot_id,
-  tracks,
-  type,
-  uri,
-} = Astro.props.playlist;
+	collaborative,
+	description,
+	external_urls,
+	followers,
+	href,
+	id,
+	images,
+	name,
+	owner,
+	primary_color,
+	snapshot_id,
+	tracks,
+	type,
+	uri
+} = Astro.props.playlist
 
 const getImageFromArray = (images: Image[]) => {
-  return images[0].url || images[1].url;
-};
+	return images[0].url || images[1].url
+}
 ---
 
 <div class="w-full rounded-xl px-8 py-4 shadow dark:bg-neutral-900/90">
-  <div class="flex items-center gap-x-10">
-    <img
-      class="h-52 w-52 rounded shadow-lg"
-      src={getImageFromArray(images)}
-      alt="profile-picture"
-    />
-    <div class="flex flex-col gap-y-2">
-      <h1
-        class="text-xl font-semibold hover:text-green-600 transition-colors duration-300"
-      >
-        <a href={external_urls.spotify} target="_blank" rel="noreferrer">
-          {name}
-        </a>
-      </h1>
-      <h2 class="text-sm text-neutral-500">
-        Owner:
-        <span class="text-green-500 font-semibold">{owner.display_name}</span>
-      </h2>
-      <p class="text-sm text-neutral-500">
-        Description: <span class="text-green font-semibold"
-          >{description || "No description provided"}</span
-        >
-      </p>
-      <h3 class="text-sm text-neutral-500">
-        Can Collaborate: <span class="font-semibold">
-          {
-            collaborative
-              ? "Yes, you can collaborate"
-              : "No, you can't collaborate"
-          }</span
-        >
-      </h3>
-      <h3 class="text-sm text-neutral-500">
-        Total Tracks: <span class="font-semibold">{tracks.total}</span>
-      </h3>
-      <h3 class="text-sm text-neutral-500">
-        Total Followers: <span class="font-semibold">{followers.total}</span>
-      </h3>
-      <button
-        class="text-sm px-10 py-2 font-semibold text-white transition-colors duration-300 bg-green-500 rounded-md shadow hover:bg-green-600 focus:outline-none focus:ring-green-100 focus:ring-4"
-      >
-        <a href={external_urls.spotify} target="_blank" rel="noreferrer">
-          Open in Spotify
-        </a>
-      </button>
-    </div>
-  </div>
+	<div class="flex items-center gap-x-10">
+		<img
+			class="h-52 w-52 rounded shadow-lg"
+			src={getImageFromArray(images)}
+			alt="profile-picture"
+		/>
+		<div class="flex flex-col gap-y-2">
+			<h1 class="text-xl font-semibold transition-colors duration-300 hover:text-green-600">
+				<a href={external_urls.spotify} target="_blank" rel="noreferrer">
+					{name}
+				</a>
+			</h1>
+			<h2 class="text-sm text-neutral-500">
+				Owner:
+				<span class="font-semibold text-green-500">{owner.display_name}</span>
+			</h2>
+			<p class="text-sm text-neutral-500">
+				Description: <span class="text-green font-semibold"
+					>{description || 'No description provided'}</span
+				>
+			</p>
+			<h3 class="text-sm text-neutral-500">
+				Can Collaborate: <span class="font-semibold">
+					{collaborative ? 'Yes, you can collaborate' : "No, you can't collaborate"}</span
+				>
+			</h3>
+			<h3 class="text-sm text-neutral-500">
+				Total Tracks: <span class="font-semibold">{tracks.total}</span>
+			</h3>
+			<h3 class="text-sm text-neutral-500">
+				Total Followers: <span class="font-semibold">{followers.total}</span>
+			</h3>
+			<button
+				class="rounded-md bg-green-500 px-10 py-2 text-sm font-semibold text-white shadow transition-colors duration-300 hover:bg-green-600 focus:outline-none focus:ring-4 focus:ring-green-100"
+			>
+				<a href={external_urls.spotify} target="_blank" rel="noreferrer"> Open in Spotify </a>
+			</button>
+		</div>
+	</div>
 </div>

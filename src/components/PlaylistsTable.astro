@@ -1,165 +1,139 @@
 ---
-import he from "he";
+import he from 'he'
 
-import { getProfiles } from "../api/getProfiles";
-import { getCurrentUserPlaylists } from "../api/getCurrentUserPlaylists";
+import { getProfiles } from '../api/getProfiles'
+import { getCurrentUserPlaylists } from '../api/getCurrentUserPlaylists'
 
-import type { Item, Playlists } from "../interfaces/Playlists";
-import type { Image } from "../interfaces/Playlists";
+import type { Item, Playlists } from '../interfaces/Playlists'
+import type { Image } from '../interfaces/Playlists'
 
-const info = Astro.props.info;
+const info = Astro.props.info
 
-const playlists: Playlists = await getCurrentUserPlaylists(info.token);
+const playlists: Playlists = await getCurrentUserPlaylists(info.token)
 
 const mappedArray = async () => {
-  const playlistsPromises = playlists.items.map(async (item: Item) => {
-    return {
-      id: item.id,
-      collaborative: item.collaborative,
-      description: item.description,
-      external_urls: item.external_urls,
-      images: item.images,
-      name: item.name,
-      owner: item.owner,
-      owner_id: item.owner.id,
-      public: item.public,
-      snapshot_id: item.snapshot_id,
-      tracks: item.tracks,
-      type: item.type,
-      uri: item.uri,
-    };
-  });
+	const playlistsPromises = playlists.items.map(async (item: Item) => {
+		return {
+			id: item.id,
+			collaborative: item.collaborative,
+			description: item.description,
+			external_urls: item.external_urls,
+			images: item.images,
+			name: item.name,
+			owner: item.owner,
+			owner_id: item.owner.id,
+			public: item.public,
+			snapshot_id: item.snapshot_id,
+			tracks: item.tracks,
+			type: item.type,
+			uri: item.uri
+		}
+	})
 
-  const ids = playlists.items.map((item) => item.owner.id);
-  const uniqueIds = [...new Set(ids)];
-  const profilePromises = await getProfiles(uniqueIds, info.token);
+	const ids = playlists.items.map((item) => item.owner.id)
+	const uniqueIds = [...new Set(ids)]
+	const profilePromises = await getProfiles(uniqueIds, info.token)
 
-  // Esperar a que todas las promesas de playlists se resuelvan
-  const playlistsArrPromises = await Promise.all(playlistsPromises);
+	// Esperar a que todas las promesas de playlists se resuelvan
+	const playlistsArrPromises = await Promise.all(playlistsPromises)
 
-  // Esperar a que todas las promesas de profiles se resuelvan
-  const profilesArrPromises = await Promise.all(profilePromises);
+	// Esperar a que todas las promesas de profiles se resuelvan
+	const profilesArrPromises = await Promise.all(profilePromises)
 
-  return {
-    playlistsArrPromises,
-    profilesArrPromises,
-  };
-};
+	return {
+		playlistsArrPromises,
+		profilesArrPromises
+	}
+}
 
 const printTable = async () => {
-  const { playlistsArrPromises, profilesArrPromises } = await mappedArray();
-  const playlistsWithProfiles = playlistsArrPromises.map((item) => {
-    // Buscamos el perfil que creo el playlist actual
-    const profilesAtPlaylists = profilesArrPromises.find(
-      (profile) => profile.id === item.owner.id
-    );
+	const { playlistsArrPromises, profilesArrPromises } = await mappedArray()
+	const playlistsWithProfiles = playlistsArrPromises.map((item) => {
+		// Buscamos el perfil que creo el playlist actual
+		const profilesAtPlaylists = profilesArrPromises.find((profile) => profile.id === item.owner.id)
 
-    // Si encontramos un perfil, devolvemos el playlist con la información del perfil
-    if (profilesAtPlaylists) {
-      return {
-        ...item,
-        imagen_profile:
-          profilesAtPlaylists.images.length > 1
-            ? profilesAtPlaylists.images[1].url
-            : null,
-      };
-    }
-    // Si no encontramos un perfil, devolvemos el track tal cual
-    return profilesAtPlaylists;
-  });
+		// Si encontramos un perfil, devolvemos el playlist con la información del perfil
+		if (profilesAtPlaylists) {
+			return {
+				...item,
+				imagen_profile:
+					profilesAtPlaylists.images.length > 1 ? profilesAtPlaylists.images[1].url : null
+			}
+		}
+		// Si no encontramos un perfil, devolvemos el track tal cual
+		return profilesAtPlaylists
+	})
 
-  return playlistsWithProfiles;
-};
+	return playlistsWithProfiles
+}
 
 // Llamada a la función
-const playlistsWithProfiles = await printTable();
+const playlistsWithProfiles = await printTable()
 
 const getImageFromArray = (images: Image[]) => {
-  return images[0].url || images[1].url;
-};
+	return images[0].url || images[1].url
+}
 
 const decodeHTMLEntities = (description: string) => {
-  return he.decode(description);
-};
+	return he.decode(description)
+}
 
 const truncateString = (str: string, maxLength: number) => {
-  if (str.length > maxLength) {
-    return str.substring(0, maxLength - 3) + "...";
-  }
-  return str;
-};
+	if (str.length > maxLength) {
+		return str.substring(0, maxLength - 3) + '...'
+	}
+	return str
+}
 ---
 
-<div class="overflow-auto max-h-[510px] rounded-xl bg-neutral-900/80">
-  <table
-    class="table-fixed text-left min-w-full divide-y divide-neutral-500/20"
-  >
-    <thead class="sticky top-0 z-10 bg-neutral-900/90">
-      <tr class="text-neutral-400 text-sm">
-        <th class="px-4 py-2 font-light">#</th>
-        <th class="px-4 py-2 font-medium"
-          ><span class="hover:text-white">Title</span></th
-        >
-        <th class="px-4 py-2 font-medium"
-          ><span class="hover:text-white">Owner</span></th
-        >
-        <th class="px-4 py-2 font-medium"
-          ><span class="hover:text-white">Collaborative</span></th
-        >
-        <th class="px-4 py-2 font-medium"
-          ><span class="hover:text-white">Tracks</span></th
-        >
-      </tr>
-    </thead>
-    <tbody class="divide-y divide-neutral-500/20">
-      {
-        playlistsWithProfiles.map((item: any, index: number) => (
-          <tr class="border-spacing-0 text-gray-300 text-sm font-light hover:bg-white/10 overflow-hidden transition duration-300">
-            <td class="px-4 py-2 text-center rounded-tl-lg rounded-bl-lg w-[10px]">
-              {index + 1}
-            </td>
-            <td class="px-4 py-2 flex gap-3">
-              <picture class="">
-                <img
-                  src={getImageFromArray(item.images)}
-                  alt={item.name}
-                  class="w-11 h-11"
-                />
-              </picture>
-              <div class="flex justify-center flex-col">
-                <h3 class="text-white text-base font-normal">
-                  <span class="hover:text-green-600 transition-colors duration-300">
-                    <a href={`/playlist/${item.id}`}>
-                      {item.name}
-                    </a>
-                  </span>
-                </h3>
-                <span>
-                  {truncateString(decodeHTMLEntities(item.description), 60)}
-                </span>
-              </div>
-            </td>
-            <td class="px-4 py-2 w-[200px]">
-              <div class="flex items-center gap-x-2">
-                <img
-                  src={item.imagen_profile || "/images/ProfileUnknown.png"}
-                  alt={item.name}
-                  class="w-11 h-11 rounded"
-                />
-                <span class="text-xs font-semibold hover:text-green-600 transition-colors duration-300">
-                  {item.owner.display_name}
-                </span>
-              </div>
-            </td>
-            <td class="text-center px-4 py-2 w-[20px]">
-              {item.collaborative ? "Yes" : "No"}
-            </td>
-            <td class="text-center px-4 py-2 rounded-tr-lg rounded-br-lg w-[20px]">
-              {item.tracks.total}
-            </td>
-          </tr>
-        ))
-      }
-    </tbody>
-  </table>
+<div class="max-h-[510px] overflow-auto rounded-xl bg-neutral-900/80">
+	<table class="min-w-full table-fixed divide-y divide-neutral-500/20 text-left">
+		<thead class="sticky top-0 z-10 bg-neutral-900/90">
+			<tr class="text-sm text-neutral-400">
+				<th class="px-4 py-2 font-light">#</th>
+				<th class="px-4 py-2 font-medium"><span class="hover:text-white">Title</span></th>
+				<th class="px-4 py-2 font-medium"><span class="hover:text-white">Owner</span></th>
+				<th class="px-4 py-2 font-medium"><span class="hover:text-white">Collaborative</span></th>
+				<th class="px-4 py-2 font-medium"><span class="hover:text-white">Tracks</span></th>
+			</tr>
+		</thead>
+		<tbody class="divide-y divide-neutral-500/20">
+			{
+				playlistsWithProfiles.map((item: any, index: number) => (
+					<tr class="border-spacing-0 overflow-hidden text-sm font-light text-gray-300 transition duration-300 hover:bg-white/10">
+						<td class="w-[10px] rounded-bl-lg rounded-tl-lg px-4 py-2 text-center">{index + 1}</td>
+						<td class="flex gap-3 px-4 py-2">
+							<picture class="">
+								<img src={getImageFromArray(item.images)} alt={item.name} class="h-11 w-11" />
+							</picture>
+							<div class="flex flex-col justify-center">
+								<h3 class="text-base font-normal text-white">
+									<span class="transition-colors duration-300 hover:text-green-600">
+										<a href={`/playlist/${item.id}`}>{item.name}</a>
+									</span>
+								</h3>
+								<span>{truncateString(decodeHTMLEntities(item.description), 60)}</span>
+							</div>
+						</td>
+						<td class="w-[200px] px-4 py-2">
+							<div class="flex items-center gap-x-2">
+								<img
+									src={item.imagen_profile || '/images/ProfileUnknown.png'}
+									alt={item.name}
+									class="h-11 w-11 rounded"
+								/>
+								<span class="text-xs font-semibold transition-colors duration-300 hover:text-green-600">
+									{item.owner.display_name}
+								</span>
+							</div>
+						</td>
+						<td class="w-[20px] px-4 py-2 text-center">{item.collaborative ? 'Yes' : 'No'}</td>
+						<td class="w-[20px] rounded-br-lg rounded-tr-lg px-4 py-2 text-center">
+							{item.tracks.total}
+						</td>
+					</tr>
+				))
+			}
+		</tbody>
+	</table>
 </div>
